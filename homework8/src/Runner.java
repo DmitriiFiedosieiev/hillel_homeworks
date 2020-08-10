@@ -1,8 +1,4 @@
 package homework8;
-
-/**
- * KillMePls
- */
  
 public class Runner {
 
