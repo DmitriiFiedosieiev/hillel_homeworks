@@ -7,6 +7,6 @@ public class CollectionIsEmptyException extends RuntimeException {
 
     @Override
     public String toString() {
-        return "Empty";
+        return "Collection is empty ";
     }
 }

@@ -6,7 +6,6 @@ import com.hillel.model.Node;
 public class List<T> {
 
     private Node<T> first;
-    private Node<T> last;
 
     public List() {
     }
@@ -17,120 +16,116 @@ public class List<T> {
 
     private void addArray(T[] array) {
         for (T t : array) {
-            addLast(t);
+            add(t);
         }
     }
 
     public void addFirst(T data) {
         Node<T> newNode = new Node<>(data, null);
-        if (isEmpty()) {
+        if (size() == 0) {
             first = newNode;
-            last = first;
         } else {
             newNode.setNext(first);
             first = newNode;
         }
     }
 
-    public void addLast(T data) {
-        Node<T> newNode = new Node<>(data, null);
-        if (isEmpty()) {
+    public void add(T data) {
+        if (size() == 0) {
             addFirst(data);
         } else {
-            last.setNext(newNode);
-            last = newNode;
+            Node<T> newNode = new Node<>(data, null);
+            Node<T> lastNode = getNode(size() - 1);
+            lastNode.setNext(newNode);
         }
     }
 
     public void addByIndex(int index, T data) {
-        if (index != 1 && isEmpty()){
-            throw new CollectionIsEmptyException();
-        }
-        if (index == 1){
-            addFirst(data);
-            return;
-        }
-        if (index == size()){
-            addLast(data);
-            return;
-        }
-
-        Node<T> newNode = new Node<T>(data, null);
         if (index == size()) {
-
-            Node<T> tempFirst = first;
-            Node<T> tempLast = tempFirst;
-            while (tempFirst.getNext() != null) {
-                tempLast = tempFirst;
-                tempFirst = tempFirst.getNext();
-            }
-            tempLast.setNext(newNode);
-            newNode.setNext(last);
-        } else {
-            index -= 1;
-            Node<T> tempFirst = first;
-            for (int i = 1; i < size(); i++) {
-                if (i == index) {
-                    Node<T> temp = tempFirst.getNext();
-                    tempFirst.setNext(newNode);
-                    newNode.setNext(temp);
-                }
-                tempFirst = tempFirst.getNext();
-            }
+            throw new IndexOutOfBoundsException();
+        } else if (index == 0) {
+            addFirst(data);
+        } else if (index == size() - 1) {
+            add(data);
+        }else {
+            Node<T> temp = getNode(index);
+            Node<T> prevNode = getNode(index - 1);
+            Node<T> newNode = new Node<>(data, temp);
+            prevNode.setNext(newNode);
         }
     }
 
-    public void swap(T dataOne, T dataTwo) {
-        Node<T> dataOneTemp = first;
-        Node<T> dataOnePrevTemp = first;
-        while (dataOneTemp.getNext() != null && dataOneTemp.getData() != dataOne) {
-            dataOnePrevTemp = dataOneTemp;
-            dataOneTemp = dataOneTemp.getNext();
+    public void swap(int indexOne, int indexTwo) {
+        Node<T> prevOne = getNode(indexOne - 1);
+        Node<T> prevTwo = getNode(indexTwo - 1);
+        Node<T> nextOne = getNode(indexOne + 1);
+        Node<T> nextTwo = getNode(indexTwo + 1);
+        Node<T> nodeOne = getNode(indexOne);
+        Node<T> nodeTwo = getNode(indexTwo);
+
+        if (isEmpty()) {
+            throw new CollectionIsEmptyException();
+        } else if (indexOne > size() || indexTwo > size()) {
+            throw new IndexOutOfBoundsException();
         }
 
-        Node<T> dataTwoTemp = first;
-        Node<T> dataTwoPrevTemp = first;
-        while (dataTwoTemp.getNext() != null && dataTwoTemp.getData() != dataTwo) {
-            dataTwoPrevTemp = dataTwoTemp;
-            dataTwoTemp = dataTwoTemp.getNext();
+        prevOne.setNext(nodeTwo);
+        nodeTwo.setNext(nextOne);
+        prevTwo.setNext(nodeOne);
+        nodeOne.setNext(nextTwo);
+
+        if (nodeOne == prevTwo) {
+            nodeTwo.setNext(nodeOne);
+            nodeOne.setNext(nextTwo);
+        } else if (nodeTwo == prevOne) {
+            nodeOne.setNext(nodeTwo);
+            nodeTwo.setNext(nextOne);
         }
-        if (dataOneTemp == first)
-            first = dataTwoTemp;
-        else if (dataTwoTemp == first)
-            first = dataOneTemp;
+    }
 
-        if (dataTwoTemp == last)
-            last = dataOneTemp;
-        else if (dataOneTemp == last)
-            last = dataTwoTemp;
+    public void removeFirst() {
+        if (isEmpty()) {
+            throw new CollectionIsEmptyException();
+        } else {
+            first = getNode(1);
+        }
+    }
 
-        Node<T> tempDataOneTemp = dataOneTemp.getNext();
-        Node<T> tempDataTwoTemp = dataTwoTemp.getNext();
+    public void remove() {
+        if (isEmpty()) {
+            throw new CollectionIsEmptyException();
+        } else if (size() == 1){
+            first = null;
+        } else {
+            Node<T> penultimate = getNode(size() - 2);
+            penultimate.setNext(null);
+        }
+    }
 
-        dataOnePrevTemp.setNext(dataTwoTemp);
-        dataTwoTemp.setNext(tempDataOneTemp);
-        dataTwoPrevTemp.setNext(dataOneTemp);
-        dataOneTemp.setNext(tempDataTwoTemp);
-
-        if (dataOneTemp == dataTwoPrevTemp) {
-            dataTwoTemp.setNext(dataOneTemp);
-            dataOneTemp.setNext(tempDataTwoTemp);
-        } else if (dataTwoTemp == dataOnePrevTemp) {
-            dataOneTemp.setNext(dataTwoTemp);
-            dataTwoTemp.setNext(tempDataOneTemp);
+    public void removeByIndex(int index) {
+        if (isEmpty()) {
+            throw new CollectionIsEmptyException();
+        } else if (index == size()) {
+            throw new IndexOutOfBoundsException();
+        } else if (index == 0) {
+            removeFirst();
+        } else {
+            Node<T> prevNode = getNode(index - 1);
+            Node<T> nextNode = getNode(index + 1);
+            prevNode.setNext(nextNode);
         }
     }
 
     public int size() {
-        return size(first);
-    }
-
-    private int size(Node<T> node) {
-        if (node == null)
+        if (isEmpty())
             return 0;
         else {
-            int count = 1;
-            count += size(node.getNext());
+            int count = 0;
+            Node<T> temp = first;
+            while (temp != null) {
+                temp = temp.getNext();
+                count++;
+            }
             return count;
         }
     }
@@ -139,14 +134,23 @@ public class List<T> {
         return first == null;
     }
 
-    public void printList() {
-        printList(first);
+
+    private Node<T> getNode(int index) {
+        Node<T> temp = first;
+        int count = 0;
+        while (count != index) {
+            temp = temp.getNext();
+            count++;
+            }
+        return temp;
     }
 
-    private void printList(Node<T> node) {
-        if (node != null) {
-            System.out.print(node.getData() + " ");
-            printList(node.getNext());
+    @Override
+    public String toString() {
+        String result = "";
+        for(int i = 0; i < size(); i++) {
+            result = result + getNode(i);
         }
+        return result;
     }
 }
