@@ -1,6 +1,5 @@
 package com.hillel.worker;
 
-import com.hillel.function.MyComparator;
 import com.hillel.impl.FuelComparator;
 import com.hillel.model.Car;
 
