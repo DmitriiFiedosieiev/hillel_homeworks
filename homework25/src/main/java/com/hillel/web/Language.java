@@ -15,7 +15,7 @@ public class Language extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String locale = (request.getParameter("language"));
+        String locale = request.getParameter("language");
         Config.set(request.getSession(), Config.FMT_LOCALE, locale);
         response.sendRedirect(request.getHeader("Referer"));
     }
