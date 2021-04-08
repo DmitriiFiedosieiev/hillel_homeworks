@@ -1,12 +1,11 @@
 package com.hillel;
 
-import com.hillel.archiver.Archiver;
 import com.hillel.fileWorker.Compressor;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
+import java.nio.file.Paths;
 import java.util.Scanner;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPOutputStream;
@@ -14,8 +13,6 @@ import java.util.zip.ZipOutputStream;
 
 public class Runner {
 
-    private OutputStream outputStream;
-    private Archiver archiver;
     Scanner scanner;
 
     public Runner() {
@@ -29,13 +26,13 @@ public class Runner {
     }
 
     public void run() {
-            System.out.println("Enter archive type(zip/gzip)");
-            String type = scanner.nextLine().toLowerCase().trim();
-            System.out.println("Enter full directory path with extension where to archive");
-            String outerPath = scanner.nextLine().toLowerCase().trim();
-            System.out.println("Enter full directory path with extension what file must be archived");
-            String innerPath = scanner.nextLine().toLowerCase().trim();
-            startCompression(type, outerPath, innerPath);
+        System.out.println("Enter archive type(zip/gzip)");
+        String type = scanner.nextLine().toLowerCase().trim();
+        System.out.println("Enter full directory path with extension where to archive");
+        String outerPath = scanner.nextLine().toLowerCase().trim();
+        System.out.println("Enter full directory path with extension what file must be archived");
+        String innerPath = scanner.nextLine().toLowerCase().trim();
+        startCompression(type, outerPath, innerPath);
     }
 
     public void close() {
@@ -47,13 +44,13 @@ public class Runner {
         String last = inner[inner.length - 1];
         try(FileOutputStream fileOutputStream = new FileOutputStream(outerPath)) {
             if (type.equals("zip")) {
-                archiver = ZipOutputStream::new;
+                Compressor compressor = new Compressor(ZipOutputStream::new);
+                compressor.compress(Paths.get(innerPath), fileOutputStream, last);
             } else if (type.equals("gzip")) {
-                archiver = GZIPOutputStream::new;
+                Compressor compressor = new Compressor(GZIPOutputStream::new);
+                compressor.compress(Paths.get(innerPath), fileOutputStream, last);
             }
-            outputStream = archiver.archive(fileOutputStream);
-            Compressor compressor = new Compressor(outputStream, innerPath );
-            compressor.compress(last);
+
         } catch (IOException e) {
             e.printStackTrace();
         }
